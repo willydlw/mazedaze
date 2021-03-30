@@ -32,7 +32,6 @@ class Grid:
 
       # left neighbor is col-1, row
       index = self.getGridIndex(gCell.col-1, gCell.row)
-      
       if index >= 0:
          left = self.grid[index]
          if not left.visited:
