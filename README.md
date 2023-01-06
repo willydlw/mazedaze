@@ -12,22 +12,26 @@ Algorithm description, https://en.wikipedia.org/wiki/Maze_generation_algorithm
 
 [Iterative Implementation](/home/diane/repos/mazedaze/iterative_dfs.py)
 
-1. Choose the initial cell, mark it as visited and push it to the stack
-2. While the stack is not empty
-   a. Pop a cell from the stack and make it a current cell
-   b. If the current cell has any neighbours which have not been visited
-      i.   Push the current cell to the stack
-      ii.  Choose one of the unvisited neighbours
-      iii. Remove the wall between the current cell and the chosen cell
-      iv.  Mark the chosen cell as visited and push it to the stack
+- Choose the initial cell, mark it as visited and push it to the stack
+- While the stack is not empty
+
+    - Pop a cell from the stack and make it a current cell.
+    - If the current cell has any neighbours which have not been visited
+    
+        - Push the current cell to the stack
+        - Choose one of the unvisited neighbours
+        - Remove the wall between the current cell and the chosen cell
+        - Mark the chosen cell as visited and push it to the stack
+
 
 [Recursive Implementation](/home/diane/repos/mazedaze/recursive_dfs.py)
 
-1. Given a current cell as a parameter
-2. Mark the current cell as visited
-3. While the current cell has any unvisited neighbor cells
-   a. Choose one of the unvisited neighbors
-   b. Remove the wall between the current cell and the chosen cell
-   c. Invoke the routine recursively for the chosen cell
+- Given a current cell as a parameter
+- Mark the current cell as visited
+- While the current cell has any unvisited neighbor cells
+
+    - Choose one of the unvisited neighbors
+    - Remove the wall between the current cell and the chosen cell
+    - Invoke the routine recursively for the chosen cell
 
 >Note: The iterative and recursive implementation default values generate a maze of width 642, height 482, cell size 20. For the recursive implementation, changing the cell size to 10 generated the following error: "RecursionError: maximum recursion depth exceeded in comparison" The iterative implementation was able to handle the cell size of 10 during my testing. Your experience may differ, based on your testing environment.
