@@ -36,12 +36,9 @@ class Maze{
     enum class AnimateState {START, ITERATE, END};
 
     // Class constants
-    static const int WALL_THICKNESS = 2;
-    static const sf::Color CURRENT_CELL_COLOR;
-    static const sf::Color STACK_CELL_COLOR;
-    static const sf::Color START_CELL_COLOR;
+    static const int WALL_THICKNESS = 4;
     static const sf::Color WALL_COLOR;
-    static const sf::Color INIT_CELL_COLOR;
+ 
 
 public: 
    
@@ -61,6 +58,7 @@ private:
     void removeWall(location neighbor);
 
     void printCell(const Cell& c);
+    void printStack();
     
 
     // data members
@@ -71,7 +69,7 @@ private:
 
     Maze::AnimateState m_state{AnimateState::START};
     Cell* m_currentCell{nullptr};
-    std::stack<Cell> m_stack;
+    std::stack<Cell*> m_stack;
 
 };
 

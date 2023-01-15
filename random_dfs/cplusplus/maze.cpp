@@ -4,11 +4,8 @@
 
 
 // Define Class Constants
-const sf::Color Maze::CURRENT_CELL_COLOR = sf::Color::Yellow;
-const sf::Color Maze::STACK_CELL_COLOR = sf::Color::Blue;
-const sf::Color Maze::START_CELL_COLOR = sf::Color::Green;
 const sf::Color Maze::WALL_COLOR = sf::Color::White;
-const sf::Color Maze::INIT_CELL_COLOR = sf::Color(75, 75, 75, 50);
+
 
 Maze::Maze(int rows, int columns, int cellSize) :
     m_rows(rows),
@@ -33,7 +30,7 @@ void Maze::init(void)
             m_grid[r][c].right = true;
             m_grid[r][c].top = true;
             m_grid[r][c].bottom = true;
-            m_grid[r][c].color = INIT_CELL_COLOR;
+            m_grid[r][c].color = sf::Color::Black;
             m_grid[r][c].gridPosition.row = r;
             m_grid[r][c].gridPosition.col = c;
         }
@@ -53,11 +50,9 @@ void Maze::update(void)
             if(!m_stack.empty())
             {
                 // pop a cell from the stack and make it the current cell
-                *m_currentCell = m_stack.top();
+                m_currentCell = m_stack.top();
                 m_stack.pop();
-
-                m_currentCell->color = CURRENT_CELL_COLOR;
-
+ 
                 // choose one of the unvisited neighbors
                 location nextLocation = chooseNeighbor();
 
@@ -65,19 +60,19 @@ void Maze::update(void)
                 if(nextLocation.row != -1 && nextLocation.col != -1)
                 {
                     // push the current cell to the stack
-                    m_stack.push(*m_currentCell);
+                    m_stack.push(m_currentCell);
                     
                     // remove the wall between the current cell and the chosen cell
                     removeWall(nextLocation);
 
                     // mark the chosen neighbor cell as visited and push it to the stack
                     m_grid[nextLocation.row][nextLocation.col].visited = true;
-                    m_grid[nextLocation.row][nextLocation.col].color = STACK_CELL_COLOR;
-                    m_stack.push(m_grid[nextLocation.row][nextLocation.col]);
+                   
+                    m_stack.push(&m_grid[nextLocation.row][nextLocation.col]);
                 }
                 else
-                { // we're done with this cell
-                    m_currentCell->color = sf::Color::Black;
+                { // we're done with this cell, it has no unexplored neighbors
+                    std::cout << "\n** no unexplored neighbors\n";
                 }
             }
             else{  // stack empty
@@ -87,6 +82,24 @@ void Maze::update(void)
         case AnimateState::END:
         break;
     }
+
+    if(!m_stack.empty()){
+        this->printStack();
+    }
+}
+
+void Maze::printStack(void)
+{
+    std::cout << "\n*** printing stack from top to bottom\n";
+    std::stack<Cell*> temp = m_stack;
+    while(!temp.empty()){
+        Cell* c = temp.top();
+        temp.pop();
+        std::cout << "row: " << c->gridPosition.row 
+            << ", col: " << c->gridPosition.col << "\n";
+    }
+
+    std::cout << "\n\n";
 }
 
 
@@ -96,17 +109,16 @@ void Maze::selectRandomStart()
     int col = rand() % m_columns;
 
 
-    std::cout   << "Start Location, row: " << row
+    std::cout   << __FUNCTION__ << ", Start Location, row: " << row
                 << ", col: " << col << "\n";
     
     m_currentCell = &m_grid[row][col];
 
     // mark it as visited
     m_currentCell->visited = true;
-    m_currentCell->color = START_CELL_COLOR;
 
     // push it to the stack
-    m_stack.push(*m_currentCell);
+    m_stack.push(m_currentCell);
 }
 
 
@@ -165,7 +177,7 @@ location Maze::chooseNeighbor(void)
         neighborLocation.row = -1;
         neighborLocation.col = -1;
     }
-    
+
     return neighborLocation; 
 }
 
@@ -175,6 +187,7 @@ location Maze::chooseNeighbor(void)
 void Maze::removeWall(location neighbor)
 { 
     location current = m_currentCell->gridPosition;
+
     if(current.col < neighbor.col)
     {
         // current is left of neighbor
@@ -186,7 +199,6 @@ void Maze::removeWall(location neighbor)
         // current is right of neighbor
         m_grid[current.row][current.col].left = false;
         m_grid[neighbor.row][neighbor.col].right = false;
-
     }
     else if(current.row < neighbor.row)
     {
@@ -204,16 +216,14 @@ void Maze::removeWall(location neighbor)
 
 
 
-
-
-
 void Maze::printCell(const Cell& c)
 {
+    std::cout << "\nCell Fields\n";
     std::cout << "visited: " << (c.visited ? "true" : "false") << "\n";
     std::cout << "left: " << (c.left ? "true" : "false") << "\n";
     std::cout << "right: " << (c.right ? "true" : "false") << "\n";
     std::cout << "top: " << (c.top ? "true" : "false") << "\n";
-    std::cout << "bottom: " << (c.bottom ? "true" : "false") << "\n\n";
+    std::cout << "bottom: " << (c.bottom ? "true" : "false") << "\n";
     std::cout << "row:    " << c.gridPosition.row << "\n";
     std::cout << "col:    " << c.gridPosition.col << "\n";
     std::cout << "\n";
@@ -229,15 +239,15 @@ void Maze::printCell(const Cell& c)
             int x = c * m_cellSize;
             int y = r * m_cellSize;
 
-            // draw rectangle with fill color to indicate cell's state
-            sf::RectangleShape rect(sf::Vector2f(m_cellSize, m_cellSize));
-            rect.setPosition(x, y);
-            rect.setFillColor(m_grid[r][c].color);
-            win.draw(rect);
-
-            std::cout << "r: " << r << ", c: " << c << "\n";
-            std::cout << "x: " << x << ", y: " << y << "\n";
-
+            // indicate current cell by drawing rectangle
+            
+            if(r == m_currentCell->gridPosition.row && c == m_currentCell->gridPosition.col)
+            {
+                sf::RectangleShape rect(sf::Vector2f(m_cellSize - 3*WALL_THICKNESS, m_cellSize - 3*WALL_THICKNESS));
+                rect.setPosition(x + WALL_THICKNESS, y + WALL_THICKNESS);
+                rect.setFillColor(sf::Color::Yellow);
+                win.draw(rect);
+            }
 
             if(m_grid[r][c].left){
                 sf::RectangleShape wall(sf::Vector2f(WALL_THICKNESS, m_cellSize));

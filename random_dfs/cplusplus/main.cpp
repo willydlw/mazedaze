@@ -20,7 +20,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), 
                                 "Iterative DFS Maze");
 
-    window.setFramerateLimit(1);
+    window.setFramerateLimit(2);
    
     Maze maze(rows, cols, cellSize);
 
@@ -34,7 +34,6 @@ int main()
         }
 
         maze.update();
-       
         window.clear();
         maze.draw(window);
         window.display();
